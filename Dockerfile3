@@ -1,0 +1,14 @@
+FROM mcp/git AS repo
+WORKDIR /app
+RUN git clone https://github.com/nextopsvideos/mvn_sample_app.git
+
+FROM maven:3.8.4-openjdk-11 AS build
+WORKDIR /app
+COPY --from=repo /app/mvn_sample_app .
+RUN mvn clean install
+
+FROM openjdk:11-jre-slim
+WORKDIR /app
+COPY --from=build /app/target/**.jar .
+EXPOSE 8000
+CMD ["java", "-jar", "bmi-1.0.jar"]
